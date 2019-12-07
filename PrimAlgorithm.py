@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import simpledialog
 
 INT_MAX = 999999999
-RLL = 8     # RECTANGLE LINE LENGTH
+RLL = 10     # RECTANGLE LINE LENGTH
 
 pts = []
 rectangleParams = []
@@ -22,16 +22,17 @@ def showFrame():
         
         # 클릭한 영역이 이미 있는 사각형 안쪽인지 판단
         drawLineMode=False
-        for pt in pts:
+        for i in range(len(pts)):
+            pt=pts[i]
             if pt[0]<=pos.x<=pt[0]+RLL and pt[1]<=pos.y<=pt[1]+RLL:
                 drawLineMode=True
-                tpt=list(map(lambda x:x+RLL//2,pt))
+                tpt=i
                 break
             
         # 맞는 경우 사각형 선긋기 작동
         if drawLineMode:
             drawLineMode=True
-            lines.append([(tpt[0], tpt[1])])
+            lines.append([i])
         # 아닌 경우 새로운 사각형 추가
         else:
             rectangleParams.append([pos.x, pos.y, pos.x+RLL, pos.y+RLL,
@@ -47,22 +48,24 @@ def showFrame():
         if drawLineMode:
             # 손을 뗀 영역이 이미 있는 사각형 안쪽인지 판단
             insideFlag = False
-            for pt in pts:
+            for i in range(len(pts)):
+                pt=pts[i]
                 if pt[0]<=pos.x<=pt[0]+RLL and pt[1]<=pos.y<=pt[1]+RLL:
                     insideFlag=True
-                    tpt=list(map(lambda x:x+RLL//2,pt))
+                    tpt=i
                     break
             # 맞는 경우 사각형 선긋기 마무리 및 가중치 설정 팝업
             if insideFlag:
-                lines[-1].append((tpt[0], tpt[1]))
-                canvas.create_line(*lines[-1][0],*lines[-1][1])
+                lines[-1].append(i)
+                canvas.create_line(*list(map(lambda x:x+RLL//2,pts[lines[-1][0]])),
+                                   *list(map(lambda x:x+RLL//2,pts[lines[-1][1]])))
                 bias = simpledialog.askstring("Input",
                                 "선의 가중치를 입력해주세요", parent=root)
                 if bias is not None:
                     lines[-1].append(int(bias))
                     print('bias of the line:',lines[-1][-1])
-                    bpt=((lines[-1][0][0]+lines[-1][1][0])/2,
-                        (lines[-1][0][1]+lines[-1][1][1])/2)
+                    bpt=((pts[lines[-1][0]][0]+pts[lines[-1][1]][0]+RLL)/2,
+                        (pts[lines[-1][0]][1]+pts[lines[-1][1]][1]+RLL)/2)
                     canvas.create_rectangle(bpt[0]-RLL*1.5,bpt[1]-RLL,
                                             bpt[0]+RLL*1.5,bpt[1]+RLL,
                                             outline="white",fill="white")
@@ -78,11 +81,16 @@ def showFrame():
             drawLineMode = False
 
     def onResetTap():
-        pass
+        global pts, rectangleParams, lines, drawLineMode
+        pts, rectangleParams, lines, drawLineMode = [], [], [], False
+        textPosX.delete(1.0, "end-1c")
+        textPosY.delete(1.0, "end-1c")
+        canvas.delete("all")
 
     def onConfirmTap():
         try:
-            pass
+            print("pts:", pts)
+            print("lines:", lines)
         except:
             print("***점을 2개 이상 찍어주세요***")
             btnReset.invoke()
