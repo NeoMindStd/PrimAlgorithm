@@ -7,6 +7,7 @@ RLL = 10     # RECTANGLE LINE LENGTH
 pts = []
 rectangleParams = []
 lines = []
+l=dict()
 drawLineMode = False
 
 def showFrame():
@@ -64,6 +65,12 @@ def showFrame():
                 if bias is not None:
                     lines[-1].append(int(bias))
                     print('bias of the line:',lines[-1][-1])
+                    try:l[lines[-1][0]]
+                    except KeyError:l[lines[-1][0]]=set()
+                    l[lines[-1][0]].add(lines[-1][1])
+                    try:l[lines[-1][1]]
+                    except KeyError:l[lines[-1][1]]=set()
+                    l[lines[-1][1]].add(lines[-1][0])
                     bpt=((pts[lines[-1][0]][0]+pts[lines[-1][1]][0]+RLL)/2,
                         (pts[lines[-1][0]][1]+pts[lines[-1][1]][1]+RLL)/2)
                     canvas.create_rectangle(bpt[0]-RLL*1.5,bpt[1]-RLL,
@@ -81,19 +88,21 @@ def showFrame():
             drawLineMode = False
 
     def onResetTap():
-        global pts, rectangleParams, lines, drawLineMode
-        pts, rectangleParams, lines, drawLineMode = [], [], [], False
+        global pts, rectangleParams, lines, l, drawLineMode
+        pts, rectangleParams, lines, l, drawLineMode = [], [], [], dict(), False
         textPosX.delete(1.0, "end-1c")
         textPosY.delete(1.0, "end-1c")
         canvas.delete("all")
 
     def onConfirmTap():
-        try:
-            print("pts:", pts)
-            print("lines:", lines)
-        except:
-            print("***점을 2개 이상 찍어주세요***")
-            btnReset.invoke()
+        #try:
+        print("pts:", pts)
+        print("lines:", lines)
+        print(l)
+        prim(pts,0)
+        #except:
+        #    print("***점을 2개 이상 찍어주세요***")
+        #    btnReset.invoke()
 
     def printPosData(eventName, pos):
         print(eventName, "position: ", pos.x, pos.y)
@@ -144,19 +153,38 @@ def showFrame():
         
     root.mainloop()
 
-class Graph:
-    pass
+def detectMin(q, d, c):
+    print(c,d)
+    m=INT_MAX
+    r=-1
+    for i in range(len(d)):
+        if m > d[i] and i not in c:
+            r=i
+    c.add(r)
+    return r
 
-def detectMin(q):
-    d.index(min(d))
+def w(u,v):
+    for i in range(len(lines)):
+        if lines[i][0]==u and lines[i][1]==v or\
+        lines[i][0]==v and lines[i][1]==u :
+            return lines[i][2]
 
-def prim(g, r): #version 2
+def prim(q, r): #version 2
     # G=(V,E): 주어진 그래프
     # r: 시작정점(리스트의 인덱스)
-    q=g[0]
+    tree=dict()
     d=[INT_MAX for _ in range(len(q))]
     d[r]=0
-    while q:
-        u = detectMin(q,d)
+    c=set()
+    while len(c)<len(q):
+        u = detectMin(q,d,c)
+        print(l[u])
+        for v in l[u]:
+            wuv=w(u,v)
+            print('루프중', u, v, wuv)
+            if v not in c and wuv<d[v]:
+                d[v]=wuv
+                tree[v]=u
+    print(tree)
 
 showFrame()
