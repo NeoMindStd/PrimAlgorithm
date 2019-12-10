@@ -3,7 +3,7 @@ from tkinter import simpledialog
 
 INT_MAX = 999
 RLL = 10     # RECTANGLE LINE LENGTH
-IS_LOGGING_MODE=True    # 디버깅 로그 프린트
+IS_LOGGING_MODE=False    # 디버깅 로그 프린트
 
 pts = []
 rectangleParams = []
@@ -201,7 +201,9 @@ def prim(q, r, canvas): #version 2
             if IS_LOGGING_MODE: print(wuv)
             if v not in c and wuv<d[v]:
                 d[v]=wuv
-                tree[v]=u                
+                tree[v]=u
+                mat=[[999]*len(q)for _ in range(len(q))]
+                for i in range(len(q)):mat[i][i]=0
                 for key,value in tree.items():mat[key][value]=mat[value][key]=w(key,value)
                 printMat(mat,cnt)
                 cnt+=1
@@ -212,7 +214,8 @@ def prim(q, r, canvas): #version 2
         print(q,tpt)
         print(d)
         print(tree)
-    
+
+    mat=[[999]*len(q)for _ in range(len(q))]
     for i in range(len(q)):mat[i][i]=0
     for key,value in tree.items():
         canvas.create_line(*tpt[key],*tpt[value])
