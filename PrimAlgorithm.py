@@ -181,22 +181,29 @@ def prim(q, r, canvas): #version 2
     # r: 시작정점(리스트의 인덱스)
     tree=dict()
     d=[INT_MAX for _ in range(len(q))]
+    mat=[[999]*len(q)for _ in range(len(q))]
+    for i in range(len(q)):mat[i][i]=0
+    printMat(mat,0)
     d[r]=0
     c=set()
+    cnt=1
     while len(c)<len(q):
         u = detectMin(q,d,c)
-        print(l[u])
+        # print(l[u])
         for v in l[u]:
             wuv=w(u,v)
             if v not in c and wuv<d[v]:
                 d[v]=wuv
-                tree[v]=u
-    tpt=list(map(lambda x:(x[0]+250,x[1]),q))
+                tree[v]=u                
+                for key,value in tree.items():mat[key][value]=mat[value][key]=w(key,value)
+                printMat(mat,cnt)
+                cnt+=1
+
     # print(q,tpt)
     # print(d)
     # print(tree)
     
-    mat=[[999]*len(q)for _ in range(len(q))]
+    tpt=list(map(lambda x:(x[0]+250,x[1]),q))
     for i in range(len(q)):mat[i][i]=0
     for key,value in tree.items():
         canvas.create_line(*tpt[key],*tpt[value])
@@ -206,9 +213,14 @@ def prim(q, r, canvas): #version 2
                                 tpt[i][0]+RLL*1.5,tpt[i][1]+RLL,
                                 outline="white",fill="white")
         canvas.create_text(*tpt[i],text = d[i])
+    printMat(mat)
+
+def printMat(mat, cnt=None):
+    if cnt is None:print('\n최종')
+    else:print(f'\n{cnt}번째 과정')
     r=[]
-    for row in mat:
-        r.append('\t'.join(map(str,row)))
+    for row in mat:r.append('\t'.join(map(str,row)))
     print('\n'.join(r))
+    print()
 
 showFrame()
