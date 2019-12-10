@@ -3,6 +3,7 @@ from tkinter import simpledialog
 
 INT_MAX = 999
 RLL = 10     # RECTANGLE LINE LENGTH
+IS_LOGGING_MODE=True    # 디버깅 로그 프린트
 
 pts = []
 rectangleParams = []
@@ -164,10 +165,15 @@ def showFrame():
 def detectMin(q, d, c):
     m=INT_MAX
     r=-1
+    if IS_LOGGING_MODE:
+        print("q:",q)
+        print("d:",d)
+        print("c:",c)
     for i in range(len(d)):
         if m > d[i] and i not in c:
+            m = d[i]
             r=i
-    c.add(r)
+    if r!=-1: c.add(r)
     return r
 
 def w(u,v):
@@ -176,7 +182,6 @@ def w(u,v):
         lines[i][0]==v and lines[i][1]==u :
             return lines[i][2]
 
-# 최소비용 신장트리를 구하지 못하는 버그가 있는 것으로 보임
 def prim(q, r, canvas): #version 2
     # q: 정점 리스트
     # r: 시작정점(리스트의 인덱스)
@@ -190,21 +195,24 @@ def prim(q, r, canvas): #version 2
     cnt=1
     while len(c)<len(q):
         u = detectMin(q,d,c)
-        # print(l[u])
+        if IS_LOGGING_MODE: print(u, l[u])
         for v in l[u]:
             wuv=w(u,v)
+            if IS_LOGGING_MODE: print(wuv)
             if v not in c and wuv<d[v]:
                 d[v]=wuv
                 tree[v]=u                
                 for key,value in tree.items():mat[key][value]=mat[value][key]=w(key,value)
                 printMat(mat,cnt)
                 cnt+=1
-
-    # print(q,tpt)
-    # print(d)
-    # print(tree)
-    
+   
     tpt=list(map(lambda x:(x[0]+250,x[1]),q))
+
+    if IS_LOGGING_MODE:
+        print(q,tpt)
+        print(d)
+        print(tree)
+    
     for i in range(len(q)):mat[i][i]=0
     for key,value in tree.items():
         canvas.create_line(*tpt[key],*tpt[value])
