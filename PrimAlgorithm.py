@@ -176,6 +176,7 @@ def w(u,v):
         lines[i][0]==v and lines[i][1]==u :
             return lines[i][2]
 
+# 최소비용 신장트리를 구하지 못하는 버그가 있는 것으로 보임
 def prim(q, r, canvas): #version 2
     # q: 정점 리스트
     # r: 시작정점(리스트의 인덱스)
